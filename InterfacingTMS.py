@@ -2,7 +2,8 @@
 """
 Created on Wed Jun 28 15:40:09 2017
 
-@author: tdong
+@author: tdong super
+
 """
 
 MODE_STD = 0 # standard
