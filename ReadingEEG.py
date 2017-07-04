@@ -20,9 +20,9 @@ from mne.preprocessing import ICA, create_ecg_epochs
  
 'Import file (this is a .bdf file)'
 raw_fname = 'C:/Users/tdong/mne_data/AnBe_Rest_wk1.bdf'
-Montage = mne.channels.read_montage('eeglab_chan32', path = 'C:/Users/tdong/mne_data/')
+Montage = mne.channels.read_montage('biosemi64')
 
-raw = mne.io.read_raw_edf(raw_fname, montage = Montage, preload=True)
+raw = mne.io.read_raw_edf(raw_fname, montage=Montage, eog= ['LEOG', 'REOG', 'LML', 'RML', 'LMH', 'RMH', 'Nose', 'SNOse'], preload=True)
 
 'frequency filtering (this is 1 to 40 Hz)'
 raw.filter(1,40)
@@ -36,7 +36,7 @@ frequency = raw.info['sfreq']
 
 'ICA'
 
-ica = ICA(n_components=32)#set up ica
+ica = ICA(n_components=64)#set up ica
 ica.fit(raw) #run the ica
 
 ica.plot_components() #plot the topographs of each component
