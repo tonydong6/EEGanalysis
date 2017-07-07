@@ -69,8 +69,54 @@ figure()
 #instead!!
 plot(freq[1:50],np.abs(Y)[1:50])
 figure()
-plot(freq, np.angle(Y) )
+plot(freq[1:50], np.angle(Y)[1:50] )
 show()
+
+
+#Wavelet transformation
+
+from wavelets import WaveletAnalysis
+
+# given a signal x(t)
+x = np.random.randn(1000)
+# and a sample spacing
+dt = 1.0/512
+
+wa = WaveletAnalysis(x, dt=dt)
+wa = WaveletAnalysis(last1second, dt=dt)
+
+# wavelet power spectrum
+power = wa.wavelet_power
+re=wa.wavelet_transform.imag
+im=wa.wavelet_transform.real
+phase=arctan(im/re)
+# scales 
+scales = wa.scales
+
+# associated time vector
+t = wa.time
+
+# reconstruction of the original data
+rx = wa.reconstruction()
+#How would you plot this?
+
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+T, S = np.meshgrid(t, scales)
+#ax.contourf(T, S, power, 100)
+ax.contourf(T, S, phase, 100)
+ax.set_yscale('log')
+fig.savefig('test_wavelet_phase_spectrum.png')
+
+fig, ax = plt.subplots()
+T, S = np.meshgrid(t, scales)
+#ax.contourf(T, S, power, 100)
+ax.contourf(T, S, power, 100)
+ax.set_yscale('log')
+fig.savefig('test_wavelet_power_spectrum.png')
+
+
 
 plot(abs(np.fft.rfft(last1second)[0:10]))
 xlim(0,10)
