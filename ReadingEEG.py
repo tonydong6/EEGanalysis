@@ -21,7 +21,7 @@ from pylab import *
 #raw = mne.io.read_raw_eeglab(raw_fname, montage = Montage, preload=True)
  
 'Import file (this is a .bdf file)'
-raw_fname = 'C:/Users/tdong/mne_data/AnBe_Rest_wk1.bdf'
+raw_fname = 'C:/Users/margyela/Google Drive/projects/TMS/ClosedLoopEEG/EEGdata/AnBe_Rest_wk1.bdf'
 Montage = mne.channels.read_montage('biosemi64')
 
 raw = mne.io.read_raw_edf(raw_fname, montage=Montage, eog= ['LEOG', 'REOG', 'LML', 'RML', 'LMH', 'RMH', 'Nose', 'SNOse'], preload=True)
@@ -45,31 +45,52 @@ ica.plot_components() #plot the topographs of each component
 
 Montage.plot(show_names=True) #plot the electrode locations
 
-ica.plot_properties(raw, picks=35)#plot the properties of each single component
+ica.plot_properties(raw, picks=26)#plot the properties of each single component
 
 ica.plot_sources(raw)#plot the timecourse of each component
 
 ica.plot_overlay(raw, exclude=[1,2,3]) #plot the proposed transformation
 
-ica.apply(raw,exclude=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64]) #apply the transformation
+#ica.apply(raw,exclude=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64]) #apply the transformation
+ica.apply(raw,include=26)
 
 'autoregression'
 
 (newdata, newtimes) = raw[::,::]
 channel1data = newdata[49,::]
 last1second = channel1data[-512*2:-512]
+plot(last1second)
 
-[ar, var, reflec] = spectrum.aryule(last1second, 511, norm= 'biased')
+Y    = np.fft.fft(last1second)
+freq = np.fft.fftfreq(len(last1second), 1.0/512)
+
+figure()
+#plot( freq, np.abs(Y) )
+#instead!!
+plot(freq[1:50],np.abs(Y)[1:50])
+figure()
+plot(freq, np.angle(Y) )
+show()
+
+plot(abs(np.fft.rfft(last1second)[0:10]))
+xlim(0,10)
+show()
+
+[ar, var, reflec] = spectrum.aryule(last1second, 15, norm= 'biased')
 psd = spectrum.arma2psd(ar)
+plot(psd)
 
 noise = randn(1, 1024)
 y = lfilter([1], ar, noise); 
 
 ps = np.abs(np.fft.fft(channel1data))**2
-time_step = 1 / 512
+time_step = 1.0 / 512
 freqs = np.fft.fftfreq(last1second.size, time_step)
 idx = np.argsort(freqs)
 
-plt.plot(freqs, ps)
+
+plt.plot(freqs[idx], ps[idx])
+plt.plot(ps[idx][256:280])
+
 axis([0, 2, 0, 100000])
 
