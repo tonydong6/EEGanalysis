@@ -22,7 +22,15 @@ import statsmodels.tsa.api as tsa
 
 #raw = mne.io.read_raw_eeglab(raw_fname, montage = Montage, preload=True)
  
-'Import file (this is a .bdf file)'
+
+'brainvision file'
+raw_fname = 'C:/Users/tdong/Desktop/visualcortex.vhdr'
+raw = mne.io.read_raw_brainvision(raw_fname)
+Montage = mne.channels.read_montage('32chan', path = 'C:/Users/tdong/mne_data/') #obtain montage
+raw = mne.io.read_raw_brainvision(raw_fname, preload=True) #get rid of empty channels
+
+
+#'Import file (this is a .bdf file)'
 raw_fname = 'C:/Users/tdong/mne_data/AnKu_Rest_wk5.bdf'#obtain file
 Montage = mne.channels.read_montage('2dummy64', path = 'C:/Users/tdong/mne_data/') #obtain montage
 raw = mne.io.read_raw_edf(raw_fname, montage=Montage, eog= ['LEOG', 'REOG', 'LML', 'RML', 'LMH', 'RMH', 'Nose', 'SNOse'], preload=True) #get rid of empty channels
@@ -40,14 +48,14 @@ errorval2 = [0]*500 #used for error calculation
 totaltrials = np.arange(500)+5
 
 'ICA'
-ica = ICA(n_components=64)#set up ica
+ica = ICA(n_components=32)#set up ica
 ica.fit(raw) #run the ica
 ica.plot_components() #plot the topographs of each component
 Montage.plot(show_names=True) #plot the electrode locations
 ica.plot_properties(raw, picks=0)#plot the properties of a single component
 ica.plot_sources(raw)#plot the timecourse of each component
-ica.plot_overlay(raw, exclude=[1,2,5,15,22,23,26,44]) #plot the proposed transformation
-ica.apply(raw,exclude=[1,2,5,15,22,23,26,44]) #apply the transformation
+ica.plot_overlay(raw, exclude=[0,2,11,19,21,24,30,33]) #plot the proposed transformation
+ica.apply(raw,exclude=[0,2,11,19,21,24,30,33]) #apply the transformation
    
 'Change-able variables'
 channeltopick = 49
@@ -66,9 +74,10 @@ plt.title(index_min)
 
 'choose just 1 second of 1 channel'
 for abba in totaltrials: #for loop to do multiple second chunks
-    choiceofsecond = abba
-    last1second = channel1data[-512*choiceofsecond:-512*(choiceofsecond-1)]#pick a second chunk
+    choiceofsecond = 6
+    last1second = channel1data[-500*choiceofsecond:-500*(choiceofsecond-1)]#pick a second chunk
     last1second = last1second - mean(last1second) #remove mean
+    plot(last1second)
     
     'autoregressive spectral analysis'
     [ar, var, reflec] = spectrum.aryule(last1second, index_min, norm= 'biased') 
@@ -118,7 +127,7 @@ for abba in totaltrials: #for loop to do multiple second chunks
     maxfreq = freqvals[newfreqrange][-1]
     
     'bandpass filter'
-    b,a = signal.butter(1, [minfreq/(0.5*512), maxfreq/(0.5*512)], btype='band') #use min and max freq to bandpass filter
+    b,a = signal.butter(1, [minfreq/(0.5*500), maxfreq/(0.5*500)], btype='band') #use min and max freq to bandpass filter
     cleanlast1second = signal.filtfilt(b, a, last1second) #zero phase band pass
     
     'time series forward prediction'
@@ -187,7 +196,12 @@ plt.axvline(x=median(errorval2))
     
 
 
-
+for abba in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]: #for loop to do multiple second chunks
+    choiceofsecond = abba
+    last1second = channel1data[-500*choiceofsecond:-500*(choiceofsecond-1)]#pick a second chunk
+    last1second = last1second - mean(last1second) #remove mean
+    figure()
+    plot(last1second)
 
 
     
